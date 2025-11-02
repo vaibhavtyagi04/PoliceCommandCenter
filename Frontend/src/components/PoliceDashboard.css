@@ -1,0 +1,21 @@
+/* PoliceDashboard.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+
+#policeDashboard { font-family: 'Inter', sans-serif; background: #0f1724; color: #fff; }
+
+
+.police-card { background: #16213e; border: 1px solid #0f3460; border-radius: 12px; padding: 18px; }
+
+
+.stats-grid { display: grid; grid-template-columns: repeat(1,1fr); gap: 16px; }
+@media (min-width: 768px) { .stats-grid { grid-template-columns: repeat(4,1fr); } }
+
+
+.police-card .text-3xl { font-weight: 700; }
+
+
+.priority-list .item { border-radius: 10px; padding: 12px; }
+
+
+@media (max-width: 640px) { .police-card { padding: 14px; } }

@@ -1,0 +1,27 @@
+/* PoliceLogin.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+
+#policeLogin, .police-login-root { font-family: 'Inter', sans-serif; }
+
+
+.police-dark { background: #1a1a2e; color: #fff; }
+.police-card { background: #16213e; border: 1px solid #0f3460; border-radius: 16px; }
+
+
+.police-card input[type="text"], .police-card input[type="password"] {
+width: 100%;
+padding: 12px 14px; border-radius: 8px;
+border: 1px solid #334155; background: #1f2937; color: #fff;
+}
+
+
+.police-card input:focus { box-shadow: 0 0 0 4px rgba(59,130,246,0.08); }
+
+
+.police-card .text-xs { color: #cbd5e1; }
+
+
+@media (max-width: 640px) {
+.police-card { padding: 20px; }
+}

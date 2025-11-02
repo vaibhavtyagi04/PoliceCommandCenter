@@ -1,0 +1,5 @@
+/* QuickCard.css */
+.quickcard { background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.06); cursor: pointer; }
+.quickcard .emoji { font-size: 28px; margin-bottom: 8px; }
+.quickcard h3 { font-size: 16px; margin-bottom: 6px; }
+.quickcard p { color: #6b7280; font-size: 14px; }

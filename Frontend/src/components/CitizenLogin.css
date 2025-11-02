@@ -1,0 +1,40 @@
+/* CitizenLogin.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+
+#citizenLogin, .citizen-login-root { font-family: 'Inter', sans-serif; }
+
+
+/* Background and card */
+#citizenLogin { background: linear-gradient(to bottom right, #eff6ff 0%, #ecfdf5 100%); }
+
+
+.card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+
+
+/* Form inputs */
+#citizenLogin input[type="text"],
+#citizenLogin input[type="password"] {
+width: 100%;
+padding: 12px 14px;
+border: 1px solid #d1d5db;
+border-radius: 8px;
+outline: none;
+}
+
+
+#citizenLogin input:focus { box-shadow: 0 0 0 4px rgba(59,130,246,0.12); border-color: transparent; }
+
+
+/* Service icons grid */
+#citizenLogin .grid { gap: 12px; }
+
+
+/* Buttons */
+.saffron-bg { background: #FF9933; }
+button { min-height: 44px; }
+
+
+@media (max-width: 640px) {
+#citizenLogin .grid { grid-template-columns: 1fr 1fr; }
+}

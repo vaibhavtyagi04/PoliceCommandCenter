@@ -1,0 +1,25 @@
+/* CitizenDashboard.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+
+#citizenDashboard { font-family: 'Inter', sans-serif; background: #f9fafb; }
+
+
+.saffron-bg { background: #FF9933; }
+
+
+/* Banner */
+.citizen-banner { border-radius: 16px; padding: 28px; color: #fff; }
+
+
+/* Quick cards */
+.quick-grid { display: grid; grid-template-columns: repeat(1,1fr); gap: 16px; }
+@media (min-width: 768px) { .quick-grid { grid-template-columns: repeat(2,1fr); } }
+@media (min-width: 1024px) { .quick-grid { grid-template-columns: repeat(4,1fr); } }
+
+
+.card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.06); }
+
+
+.notifications .item { padding: 12px; border-radius: 10px; }
+.notifications .item p { margin: 4px 0 0; }
