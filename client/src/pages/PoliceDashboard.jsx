@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { FiShield, FiAlertTriangle, FiCheckCircle, FiClock, FiMap, FiActivity, FiTrendingUp, FiSearch, FiRss, FiLayout, FiInbox } from "react-icons/fi";
+import { FiShield, FiTrendingUp, FiSearch, FiRss, FiLayout, FiInbox } from "react-icons/fi";
 import axios from "../api/axios";
 import { SocketContext } from "../context/SocketContext";
 import { AuthContext } from "../context/AuthContext";

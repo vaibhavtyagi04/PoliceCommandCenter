@@ -16,7 +16,7 @@ export default function ResetPassword() {
     if (!phoneNumber || !otp) {
       navigate("/login");
     }
-  }, [navigate, phoneNumber]);
+  }, [navigate, phoneNumber, otp]);
 
   const handleReset = async (e) => {
     e.preventDefault();

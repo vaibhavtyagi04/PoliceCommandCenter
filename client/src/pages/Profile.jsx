@@ -4,7 +4,7 @@ import axios from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 
 export default function Profile() {
-  const { user, login } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
   const [profile, setProfile] = useState({
     name: "",
     email: "",
