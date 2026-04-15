@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import express from "express";
 import http from "http";
 import cors from "cors";
@@ -8,6 +9,7 @@ import { initSocket } from "./socket.js";
 import rateLimit from "express-rate-limit";
 import winston from "winston";
 
+// Routes
 import authRoutes from "./routes/authRoutes.js";
 import complaintRoutes from "./routes/complaintRoutes.js";
 import policeRoutes from "./routes/policeRoutes.js";
@@ -16,39 +18,62 @@ import uploadRoutes from "./routes/upload.js";
 import announcementRoutes from "./routes/announcementRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 
-console.log("ENV CHECK:", process.env.IMAGEKIT_PUBLIC_KEY);
-
+// Initialize app
 const app = express();
 const server = http.createServer(app);
 
+// =====================
+// 🔐 CORS CONFIG
+// =====================
 app.use(cors({
-  origin: process.env.CLIENT_URL || "*",
+  origin: process.env.CLIENT_URL || "https://police-command-center.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
+
+// =====================
+// 📦 MIDDLEWARE
+// =====================
 app.use(express.json());
 
-// Logging configuration
+// =====================
+// 📊 LOGGER (WINSTON)
+// =====================
 const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
   transports: [
     new winston.transports.Console(),
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: "error.log", level: "error" }),
   ],
 });
 
-// Rate limiting
+// =====================
+// 🚦 RATE LIMITING
+// =====================
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: "Too many requests from this IP, please try again later"
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 100,
+  message: "Too many requests, please try again later."
 });
 app.use("/api/", limiter);
 
+// =====================
+// 🗄️ DATABASE CONNECTION
+// =====================
 connectDB();
+
+// =====================
+// 🔌 SOCKET INIT
+// =====================
 initSocket(server);
 
+// =====================
+// 📡 ROUTES
+// =====================
 app.use("/api/auth", authRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/police", policeRoutes);
@@ -57,10 +82,22 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/notifications", notificationRoutes);
 
-// HEARTBEAT / HEALTH CHECK
+// =====================
+// ❤️ HEALTH CHECK
+// =====================
 app.get("/", (req, res) => {
-  res.send("<h1>Police Backend Running 🚔</h1><p>Status: Healthy & Active</p>");
+  res.status(200).send({
+    message: "Police Backend Running 🚔",
+    status: "Healthy",
+    timestamp: new Date()
+  });
 });
 
+// =====================
+// 🚀 START SERVER
+// =====================
 const PORT = process.env.PORT || 4000;
-server.listen(PORT, () => console.log(`Server running on ${PORT}`));
+
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
