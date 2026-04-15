@@ -1,21 +1,14 @@
 import express from "express";
-import ImageKit from "imagekit";
+import imagekit from "../services/imageService.js";
+import { uploadImage } from "../controllers/uploadController.js";
+import { upload } from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
-const getImageKit = () => {
-  return new ImageKit({
-    publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
-    privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
-    urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
-  });
-};
-
-// FRONTEND uses this to get signature + token
+// FRONTEND uses this for client-side upload signatures
 router.get("/auth", (req, res) => {
   try {
-    const ik = getImageKit();
-    const result = ik.getAuthenticationParameters();
+    const result = imagekit.getAuthenticationParameters();
     res.json({
       signature: result.signature,
       token: result.token,
@@ -26,5 +19,8 @@ router.get("/auth", (req, res) => {
     res.status(500).json({ error: "Failed to get ImageKit auth" });
   }
 });
+
+// SERVER-SIDE UPLOAD using multer
+router.post("/", upload.single("image"), uploadImage);
 
 export default router;
