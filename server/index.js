@@ -57,6 +57,10 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/notifications", notificationRoutes);
 
+// HEARTBEAT / HEALTH CHECK
+app.get("/", (req, res) => {
+  res.send("<h1>Police Backend Running 🚔</h1><p>Status: Healthy & Active</p>");
+});
 
 const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => console.log(`Server running on ${PORT}`));
