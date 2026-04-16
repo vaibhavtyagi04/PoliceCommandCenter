@@ -20,6 +20,7 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 
 // Initialize app
 const app = express();
+app.set("trust proxy", 1);
 const server = http.createServer(app);
 
 // =====================
