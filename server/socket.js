@@ -1,11 +1,12 @@
 import { Server } from "socket.io";
+import { corsOptions } from "./middleware/corsConfig.js";
 import jwt from "jsonwebtoken";
 import User from "./models/User.js"; 
 
 export let io = null;
 
 export function initSocket(server) {
-  io = new Server(server, { cors: { origin: "*" } });
+  io = new Server(server, { cors: corsOptions });
 
   io.on("connection", (socket) => {
     const token = socket.handshake.auth?.token;

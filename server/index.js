@@ -4,6 +4,7 @@ dotenv.config();
 import express from "express";
 import http from "http";
 import cors from "cors";
+import { corsOptions } from "./middleware/corsConfig.js";
 import connectDB from "./db.js";
 import { initSocket } from "./socket.js";
 import rateLimit from "express-rate-limit";
@@ -23,31 +24,7 @@ const app = express();
 app.set("trust proxy", 1);
 const server = http.createServer(app);
 
-// =====================
-// 🔐 CORS CONFIG
-// =====================
-// Dynamically allow origins based on Vercel subdomains
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  "https://police-command-center.vercel.app"
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const isVercelPreview = origin.includes("vercel.app") && origin.includes("police-command-center");
-    
-    if (allowedOrigins.indexOf(origin) !== -1 || isVercelPreview) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
+app.use(cors(corsOptions));
 
 // =====================
 // 📦 MIDDLEWARE
