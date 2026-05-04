@@ -401,16 +401,6 @@ export default function UpdatesFeed() {
             </div>
           </div>
         )}
-
-        {locError && !loading && (
-          <div className="mt-8 p-8 bg-gold rounded-[32px] shadow-xl shadow-gold/20 flex items-center gap-6 text-navy border-2 border-white">
-            <div className="h-16 w-16 bg-white rounded-2xl flex items-center justify-center text-3xl shadow-inner">📍</div>
-            <div>
-              <p className="text-xl font-black uppercase tracking-tighter">Location Access Required</p>
-              <p className="text-sm font-bold opacity-80 leading-tight">Using default region (Hapur) as browser GPS is disabled.</p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
