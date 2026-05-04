@@ -18,6 +18,7 @@ import emergencyRoutes from "./routes/emergencyRoutes.js";
 import uploadRoutes from "./routes/upload.js";
 import announcementRoutes from "./routes/announcementRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import stationRoutes from "./routes/stationRoutes.js";
 
 // Initialize app
 const app = express();
@@ -54,6 +55,14 @@ const limiter = rateLimit({
   max: 100,
   message: "Too many requests, please try again later."
 });
+
+const stationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50, // More restrictive for location-based search
+  message: "Too many location searches, please try again later."
+});
+
+app.use("/api/stations", stationLimiter);
 app.use("/api/", limiter);
 
 // =====================
@@ -76,6 +85,7 @@ app.use("/api/emergency", emergencyRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/stations", stationRoutes);
 
 // =====================
 // ❤️ HEALTH CHECK
