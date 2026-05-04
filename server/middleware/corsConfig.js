@@ -11,6 +11,7 @@ export const corsOptions = {
     // allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
+    // Check if the origin is a Vercel preview URL or explicitly allowed
     const isVercelPreview = origin.includes("vercel.app") && origin.includes("police-command-center");
     
     if (allowedOrigins.indexOf(origin) !== -1 || isVercelPreview) {
