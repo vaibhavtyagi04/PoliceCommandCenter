@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleMap, useJsApiLoader, HeatmapLayer } from '@react-google-maps/api';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet.heat';
 
 const containerStyle = {
   width: '100%',
@@ -7,84 +9,66 @@ const containerStyle = {
   borderRadius: '16px'
 };
 
-const center = {
-  lat: 28.6139,
-  lng: 77.2090
-};
+const center = [28.6139, 77.2090]; // [lat, lng] for Leaflet
+
+// Custom component to handle the heatmap layer
+function HeatmapLayer({ points }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map || !points.length) return;
+
+    // Leaflet.heat expects [lat, lng, intensity]
+    const heatPoints = points.map(p => [p.lat, p.lng, p.intensity]);
+    const heatLayer = L.heatLayer(heatPoints, {
+      radius: 20,
+      blur: 15,
+      maxZoom: 17,
+      gradient: { 0.4: 'blue', 0.65: 'lime', 1: 'red' }
+    }).addTo(map);
+
+    return () => {
+      map.removeLayer(heatLayer);
+    };
+  }, [map, points]);
+
+  return null;
+}
 
 export default function CrimeHeatmap() {
   const [points, setPoints] = useState([]);
-  
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: "YOUR_API_KEY_HERE", // User needs to provide this
-    libraries: ['visualization']
-  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Fetch simulated hotspots from AI service
     fetch("http://localhost:5000/hotspots")
       .then(res => res.json())
       .then(data => {
-        if (window.google) {
-           const mapPoints = data.map(p => ({
-             location: new window.google.maps.LatLng(p.lat, p.lng),
-             weight: p.intensity * 10
-           }));
-           setPoints(mapPoints);
-        }
+        setPoints(data);
+        setLoading(false);
       })
-      .catch(err => console.error("Error fetching hotspots:", err));
-  }, [isLoaded]);
+      .catch(err => {
+        console.error("Error fetching hotspots:", err);
+        setLoading(false);
+      });
+  }, []);
 
-  if (!isLoaded) return <div className="h-[400px] flex items-center justify-center bg-slate-800 rounded-2xl">Loading GIS Maps...</div>;
+  if (loading) return <div className="h-[400px] flex items-center justify-center bg-slate-800 rounded-2xl">Loading GIS Maps...</div>;
 
   return (
     <div className="rounded-2xl overflow-hidden border border-slate-700 shadow-xl">
-      <GoogleMap
-        mapContainerStyle={containerStyle}
+      <MapContainer
         center={center}
         zoom={12}
-        options={{
-          styles: darkMapStyles
-        }}
+        style={containerStyle}
+        scrollWheelZoom={false}
       >
-        {points.length > 0 && (
-          <HeatmapLayer
-            data={points}
-            options={{
-              radius: 20,
-              opacity: 0.6
-            }}
-          />
-        )}
-      </GoogleMap>
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        />
+        {points.length > 0 && <HeatmapLayer points={points} />}
+      </MapContainer>
     </div>
   );
 }
-
-const darkMapStyles = [
-  { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-  {
-    featureType: "administrative.locality",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [{ color: "#38414e" }],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry.stroke",
-    stylers: [{ color: "#212a37" }],
-  },
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [{ color: "#17263c" }],
-  },
-];

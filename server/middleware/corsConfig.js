@@ -2,7 +2,8 @@
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
-  "https://police-command-center.vercel.app"
+  "https://police-command-center.vercel.app",
+  "http://localhost:3000"
 ];
 
 export const corsOptions = {

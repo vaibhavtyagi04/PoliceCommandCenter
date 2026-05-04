@@ -5,8 +5,43 @@ import {
 } from "react-icons/fi";
 import axios from "../../api/axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import toast from "react-hot-toast";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import markerIconRetina from 'leaflet/dist/images/marker-icon-2x.png';
+
+// Fix for default marker icon issue in Leaflet with Webpack/CRA
+let DefaultIcon = L.icon({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIconRetina,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  tooltipAnchor: [16, -28],
+  shadowSize: [41, 41]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
+
+// Custom blue icon for user location
+const blueIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+// Helper component to update map view when location changes
+function ChangeView({ center, zoom }) {
+  const map = useMap();
+  map.setView(center, zoom);
+  return null;
+}
 
 export default function UpdatesFeed() {
   const [updates, setUpdates] = useState([]);
@@ -20,19 +55,14 @@ export default function UpdatesFeed() {
   const [locError, setLocError] = useState(false);
   const [selectedStation, setSelectedStation] = useState(null);
 
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ""
-  });
-
-  const DEFAULT_COORDS = { lat: 28.7306, lng: 77.7774 }; // Hapur, UP
+  const DEFAULT_COORDS = [28.7306, 77.7774]; // Hapur, UP [lat, lng]
 
   useEffect(() => {
     // Attempt to get user location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setLocation([pos.coords.latitude, pos.coords.longitude]);
           setLocError(false);
         },
         (err) => {
@@ -58,7 +88,7 @@ export default function UpdatesFeed() {
     try {
       if (!location) return;
       setLoading(true);
-      const res = await axios.get(`/api/stations/nearby?lat=${location.lat}&lng=${location.lng}&distance=${radius}`);
+      const res = await axios.get(`/api/stations/nearby?lat=${location[0]}&lng=${location[1]}&distance=${radius}`);
       setStations(res.data.stations);
     } catch (err) {
       console.error(err);
@@ -78,7 +108,7 @@ export default function UpdatesFeed() {
       setLoading(true);
       let url = "/api/announcements";
       if (location) {
-        url += `?lat=${location.lat}&lng=${location.lng}&radius=${radius}`;
+        url += `?lat=${location[0]}&lng=${location[1]}&radius=${radius}`;
       }
       const res = await axios.get(url);
       setUpdates(res.data.announcements);
@@ -295,53 +325,45 @@ export default function UpdatesFeed() {
                 </AnimatePresence>
               </div>
             ) : (
-              /* GOOGLE MAPS VIEW */
+              /* LEAFLET MAP VIEW */
               <motion.div 
                 initial={{ opacity: 0 }} 
                 animate={{ opacity: 1 }} 
                 className="rounded-[40px] overflow-hidden shadow-2xl border-4 border-white"
               >
-                {isLoaded ? (
-                  <GoogleMap
-                    mapContainerStyle={mapContainerStyle}
-                    center={location || DEFAULT_COORDS}
-                    zoom={12}
-                    options={{ disableDefaultUI: true, styles: mapStyles }}
-                  >
-                    {location && (
-                      <Marker 
-                        position={location} 
-                        icon="https://maps.google.com/mapfiles/ms/icons/blue-dot.png" 
-                      />
-                    )}
-                    {stations.map(station => (
-                      <Marker 
-                        key={station._id}
-                        position={{ lat: station.location.coordinates[1], lng: station.location.coordinates[0] }}
-                        onClick={() => setSelectedStation(station)}
-                      />
-                    ))}
-                    {selectedStation && (
-                      <InfoWindow
-                        position={{ lat: selectedStation.location.coordinates[1], lng: selectedStation.location.coordinates[0] }}
-                        onCloseClick={() => setSelectedStation(null)}
-                      >
-                        <div className="p-2 max-w-[200px]">
-                          <h4 className="font-bold text-navy">{selectedStation.name}</h4>
-                          <p className="text-[10px] text-gray-500 my-2">{selectedStation.address}</p>
+                <MapContainer
+                  center={location || DEFAULT_COORDS}
+                  zoom={12}
+                  style={mapContainerStyle}
+                >
+                  <ChangeView center={location || DEFAULT_COORDS} zoom={12} />
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  {location && (
+                    <Marker position={location} icon={blueIcon}>
+                      <Popup>Your Location</Popup>
+                    </Marker>
+                  )}
+                  {stations.map(station => (
+                    <Marker 
+                      key={station._id}
+                      position={[station.location.coordinates[1], station.location.coordinates[0]]}
+                    >
+                      <Popup>
+                        <div className="p-1 max-w-[180px]">
+                          <h4 className="font-bold text-navy text-sm">{station.name}</h4>
+                          <p className="text-[10px] text-gray-500 my-1">{station.address}</p>
                           <div className="flex gap-2 mt-2">
-                            <a href={`tel:${selectedStation.phone}`} className="bg-navy text-white px-2 py-1 rounded text-[10px] font-bold">Call</a>
-                            <a href={`https://www.google.com/maps?q=${selectedStation.location.coordinates[1]},${selectedStation.location.coordinates[0]}`} target="_blank" className="bg-gold text-navy px-2 py-1 rounded text-[10px] font-bold">Maps</a>
+                            <a href={`tel:${station.phone}`} className="bg-navy text-white px-2 py-1 rounded text-[10px] font-bold">Call</a>
+                            <a href={`https://www.google.com/maps?q=${station.location.coordinates[1]},${station.location.coordinates[0]}`} target="_blank" className="bg-gold text-navy px-2 py-1 rounded text-[10px] font-bold">Maps</a>
                           </div>
                         </div>
-                      </InfoWindow>
-                    )}
-                  </GoogleMap>
-                ) : (
-                  <div className="h-[500px] flex items-center justify-center bg-gray-100 font-bold uppercase tracking-widest text-navy animate-pulse">
-                    Loading Secure Maps...
-                  </div>
-                )}
+                      </Popup>
+                    </Marker>
+                  ))}
+                </MapContainer>
               </motion.div>
             )}
           </div>
