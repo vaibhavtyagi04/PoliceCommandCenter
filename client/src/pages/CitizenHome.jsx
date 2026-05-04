@@ -103,7 +103,26 @@ export default function CitizenHome() {
                     <UpdateItem key={i} item={update} />
                   ))
                 ) : (
-                  <p className="text-gray-400 text-sm py-4 italic">No recent safety updates in your area.</p>
+                  <>
+                    <UpdateItem item={{
+                      category: "Safety Guide",
+                      title: "Night Patrol Increased",
+                      description: "Local police patrolling has been increased in residential areas for your safety.",
+                      createdAt: new Date().toISOString()
+                    }} />
+                    <UpdateItem item={{
+                      category: "Alert",
+                      title: "Voter ID Registration",
+                      description: "Special booth active at the Community Center for new voter registration.",
+                      createdAt: new Date().toISOString()
+                    }} />
+                    <UpdateItem item={{
+                      category: "Update",
+                      title: "New CCTV Installation",
+                      description: "15 new high-definition cameras installed at major intersections nearby.",
+                      createdAt: new Date().toISOString()
+                    }} />
+                  </>
                 )}
               </div>
             </div>
